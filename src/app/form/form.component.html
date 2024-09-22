@@ -1,0 +1,126 @@
+<form [formGroup]="attendanceForm" novalidate (ngSubmit)="onSubmit()">
+  <mat-card class="shipping-card">
+    <mat-card-header>
+      <mat-card-title>Počet dní v měsíci: {{dayCount}}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input type="number" matInput placeholder="Měsíc" formControlName="month">
+            @if (attendanceForm.controls['month'].hasError('required')) {
+              <mat-error>Měsíc je <strong>povinný</strong></mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Rok" formControlName="year">
+            @if (attendanceForm.controls['year'].hasError('required')) {
+              <mat-error>Rok je <strong>povinný</strong></mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Docházka (hodin)" formControlName="attendanceHours">
+            @if (attendanceForm.controls['attendanceHours'].hasError('required')) {
+              <mat-error>Počet hodin docházky je <strong>povinný</strong></mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <mat-card-actions>
+        <button mat-fab extended color="primary" type="submit">Přepočítat</button>
+        <button mat-fab extended color="primary" type="button" (click)="copyToClipboard()">Zkopírovat</button>
+      </mat-card-actions>
+
+      <table mat-table [dataSource]="dayAttendance" [trackBy]="trackBy" class="mat-elevation-z8">
+
+        <!--- Note that these columns can be defined in any order.
+              The actual rendered columns are set as a property on the row definition" -->
+
+        <!-- Customize Column -->
+        <ng-container matColumnDef="customize">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element">
+            <mat-checkbox [checked]="!element.working" (change)="switchHoliday(element.day)"  matTooltip="dovolená/víkend">
+            </mat-checkbox></td>
+        </ng-container>
+
+        <!-- Absent Column -->
+        <ng-container matColumnDef="absent">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element; let i=index">
+            <input matInput type="number" [formControl]="getControl(i, 'absent')" matTooltip="absence (hodin)" class="day-absence">
+          </td>
+        </ng-container>
+
+        <!-- Day Column -->
+        <ng-container matColumnDef="day">
+          <th mat-header-cell *matHeaderCellDef> Den </th>
+          <td mat-cell *matCellDef="let element"> {{element.day}} </td>
+        </ng-container>
+
+        <!-- Morning Start Column -->
+        <ng-container matColumnDef="morningStart">
+          <th mat-header-cell *matHeaderCellDef> Začátek </th>
+          <td mat-cell *matCellDef="let element"> {{element.morningStart | time }} </td>
+        </ng-container>
+
+        <!-- Morning End Column -->
+        <ng-container matColumnDef="morningEnd">
+          <th mat-header-cell *matHeaderCellDef> Oběd </th>
+          <td mat-cell *matCellDef="let element"> {{element.morningEnd | time }} </td>
+        </ng-container>
+
+        <!-- Afternoon Start Column -->
+        <ng-container matColumnDef="afternoonStart">
+          <th mat-header-cell *matHeaderCellDef> Odpoledne </th>
+          <td mat-cell *matCellDef="let element"> {{element.afternoonStart | time }} </td>
+        </ng-container>
+
+        <!-- Afternoon End Column -->
+        <ng-container matColumnDef="afternoonEnd">
+          <th mat-header-cell *matHeaderCellDef> Konec </th>
+          <td mat-cell *matCellDef="let element"> {{element.afternoonEnd | time }} </td>
+        </ng-container>
+
+        <!-- Morning Column -->
+        <ng-container matColumnDef="morning">
+          <th mat-header-cell *matHeaderCellDef> Ráno </th>
+          <td mat-cell *matCellDef="let element"> {{element.morning}} </td>
+        </ng-container>
+
+        <!-- Afternoon Column -->
+        <ng-container matColumnDef="afternoon">
+          <th mat-header-cell *matHeaderCellDef> Odpoledne </th>
+          <td mat-cell *matCellDef="let element"> {{element.afternoon}} </td>
+        </ng-container>
+
+        <!-- Total Column -->
+        <ng-container matColumnDef="total">
+          <th mat-header-cell *matHeaderCellDef> Celkem </th>
+          <td mat-cell *matCellDef="let element"> {{element.total | time }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            [class.non-working]="!row.working"></tr>
+      </table>
+
+
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-fab extended color="primary" type="submit">Přepočítat</button>
+      <button mat-fab extended color="primary" type="button" (click)="copyToClipboard()">Zkopírovat</button>
+    </mat-card-actions>
+  </mat-card>
+</form>
+<div>Test:</div>
+<div>{{ testResult | json }}</div>
+<div>Data:</div>
+<div>{{ dayAttendance.data | json }}</div>
