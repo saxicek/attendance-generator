@@ -124,6 +124,9 @@ export class FormComponent implements OnInit {
     this.attendanceForm.controls.year.valueChanges.subscribe((year) =>
       this.init(year, this.attendanceForm.controls.month.value)
     );
+    this.formArray.valueChanges.subscribe((_) =>
+      this.recalculate(this.dayAttendance.data)
+    );
     this.dayAttendance.connect().subscribe(console.log);
   }
 
@@ -172,16 +175,6 @@ export class FormComponent implements OnInit {
     this.recalculate(this.dayAttendance.data);
   }
 
-  absent(day: number, event: Event) {
-    const input = event.target as HTMLInputElement;
-    const value = Number(input.value);
-    this.recalculate(
-      this.dayAttendance.data.map((rec) =>
-        rec.day === day ? { ...rec, absent: value } : rec
-      )
-    );
-  }
-
   switchHoliday(day: number) {
     this.recalculate(
       this.dayAttendance.data.map((rec) =>
@@ -219,15 +212,17 @@ export class FormComponent implements OnInit {
     lunchTime: number,
     dailyVariance: number
   ): AttendanceDay[] {
-    return dayAttendance.map((day) => {
+    return dayAttendance.map((day, i) => {
       if (!day.working) return day;
+      const absent = this.formArray.at(i).controls.absent.value * 60;
       const morningStart = this.valueWithVariance(dayStart, dailyVariance);
       const morningEnd = this.valueWithVariance(lunchTime, dailyVariance);
-      if (day.total - day.absent <= morningEnd - morningStart) {
+      if (day.total - absent <= morningEnd - morningStart) {
         return {
           ...day,
+          absent,
           morningStart,
-          morningEnd: morningStart + (day.total - day.absent),
+          morningEnd: morningStart + (day.total - absent),
           afternoonStart: 0,
           afternoonEnd: 0,
         };
@@ -238,11 +233,12 @@ export class FormComponent implements OnInit {
         );
         return {
           ...day,
+          absent,
           morningStart,
           morningEnd,
           afternoonStart,
           afternoonEnd:
-            afternoonStart + day.total - morningEnd + morningStart - day.absent,
+            afternoonStart + day.total - morningEnd + morningStart - absent,
         };
       }
     });
