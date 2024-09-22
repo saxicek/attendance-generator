@@ -1,3 +1,9 @@
+@use '@angular/material' as mat;
+
+table {
+  @include mat.form-field-density(-5);
+}
+
 .full-width {
   width: 100%;
 }

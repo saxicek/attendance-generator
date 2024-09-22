@@ -1,5 +1,5 @@
 <form [formGroup]="attendanceForm" novalidate (ngSubmit)="onSubmit()">
-  <mat-card class="shipping-card">
+  <mat-card class="shipping-card" [style.max-width.px]="1000">
     <mat-card-header>
       <mat-card-title>Počet dní v měsíci: {{dayCount}}</mat-card-title>
     </mat-card-header>
@@ -48,24 +48,28 @@
 
         <!-- Customize Column -->
         <ng-container matColumnDef="customize">
-          <th mat-header-cell *matHeaderCellDef></th>
+          <th mat-header-cell *matHeaderCellDef matTooltip="víkend/svátek/dovolená">Víkend</th>
           <td mat-cell *matCellDef="let e">
-            <mat-checkbox [checked]="!e.working" (change)="switchHoliday(e.day)"  matTooltip="dovolená/víkend">
+            <mat-checkbox [checked]="!e.working" (change)="switchHoliday(e.day)" matTooltip="víkend/svátek/dovolená">
             </mat-checkbox></td>
         </ng-container>
 
         <!-- Absent Column -->
         <ng-container matColumnDef="absent">
-          <th mat-header-cell *matHeaderCellDef></th>
+          <th mat-header-cell *matHeaderCellDef>Absence</th>
           <td mat-cell *matCellDef="let e; let i=index">
-            <input matInput type="number" [formControl]="getControl(i, 'absent')" matTooltip="absence (hodin)" class="day-absence">
+            @if (e.working) {
+              <mat-form-field subscriptSizing="dynamic" matTooltip="Absence (hodin)" [style.width.rem]="4">
+                <input matInput type="number" [formControl]="getControl(i, 'absent')" class="day-absence">
+              </mat-form-field>
+            }
           </td>
         </ng-container>
 
         <!-- Day Column -->
         <ng-container matColumnDef="day">
           <th mat-header-cell *matHeaderCellDef> Den </th>
-          <td mat-cell *matCellDef="let e"> {{e.day}} </td>
+          <td mat-cell *matCellDef="let e"> {{e.day}}. </td>
         </ng-container>
 
         <!-- Morning Start Column -->

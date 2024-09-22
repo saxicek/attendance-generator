@@ -44,7 +44,7 @@ interface AttendanceDay {
 @Component({
   selector: 'app-form',
   templateUrl: './form.component.html',
-  styleUrl: './form.component.css',
+  styleUrl: './form.component.scss',
   standalone: true,
   imports: [
     MatInputModule,
@@ -79,9 +79,9 @@ export class FormComponent implements OnInit {
   readonly dayStart = 8 * 60;
 
   displayedColumns: string[] = [
+    'day',
     'customize',
     'absent',
-    'day',
     'morningStart',
     'afternoonEnd',
     'morningEnd',
