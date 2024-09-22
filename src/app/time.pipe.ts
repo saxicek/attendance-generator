@@ -8,7 +8,7 @@ export function time(value: number | undefined): string {
   if (!value) return '';
   const minutes = value % 60;
   const hours = (value - minutes) / 60;
-  return value ? `${hours}:${String(minutes).padStart(2, '0')} (${value})` : value.toFixed(2);
+  return value ? `${hours}:${String(minutes).padStart(2, '0')}` : value.toFixed(2);
 }
 
 @Pipe({
