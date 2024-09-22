@@ -65,8 +65,8 @@ export class FormComponent implements OnInit {
     year: new Date().getFullYear(),
     /** month to generate for */
     month: new Date().getMonth() + 1,
-    /** number of hours worked during the month */
-    attendanceHours: 160,
+    /** number of hours worked during the day */
+    attendanceHours: 8,
   };
 
   // setup variables
@@ -83,11 +83,9 @@ export class FormComponent implements OnInit {
     'absent',
     'day',
     'morningStart',
+    'afternoonEnd',
     'morningEnd',
     'afternoonStart',
-    'afternoonEnd',
-    'morning',
-    'afternoon',
     'total',
   ];
 
@@ -143,12 +141,12 @@ export class FormComponent implements OnInit {
           })
         )
       );
-      this.formArray.controls.forEach((control, i) => control.controls.absent.valueChanges.subscribe((absent) => this.dayAttendance.data[i].absent = absent * 60));
       this.dayAttendance.data = dayAttendance;
-      if (this.attendanceForm.controls.attendanceHours.pristine) {
-        // set attendance hours to working days * 8 hours
-        this.attendanceForm.controls.attendanceHours.setValue(dayAttendance.filter(day => day.working).length * 8);
-      }
+      this.formArray.controls.forEach((control, i) => control.controls.absent.valueChanges.subscribe((absent) => this.dayAttendance.data[i].absent = absent * 60));
+      // if (this.attendanceForm.controls.attendanceHours.pristine) {
+      //   // set attendance hours to working days * 8 hours
+      //   this.attendanceForm.controls.attendanceHours.setValue(dayAttendance.filter(day => day.working).length * 8);
+      // }
     }
   }
 
@@ -241,12 +239,15 @@ export class FormComponent implements OnInit {
   }
 
   getDaysInMonth(year: number, month: number) {
-    // Month is 1 indexed: 1 for January, 2 for February, etc.
+    // Month parameter is 1 indexed: 1 for January, 2 for February, etc.
+    // Date constructor expects 0 indexed month, but 1 indexed day;
+    // since we specify day 0, it is the last day of previous month,
+    // i.e. new Date(2024, 2, 0) returns the last day in February
     return new Date(year, month, 0).getDate();
   }
 
   isWorking(year: number, month: number, day: number) {
-    const d = new Date(`${year}-${month}-${day}`);
+    const d = new Date(`${year}-${month-1}-${day}`);
     const dateIso = d.toISOString().split('T')[0];
     return d.getDay() !== 0 && d.getDay() !== 6 &&
      !Object.keys(czechHolidays).includes(dateIso);
@@ -254,7 +255,7 @@ export class FormComponent implements OnInit {
 
   calculateDailyAttendance(
     att: AttendanceDay[],
-    totalHours: number,
+    dailyHours: number,
     variance: number
   ) {
     const workingDaysCount = att.reduce(
@@ -262,7 +263,7 @@ export class FormComponent implements OnInit {
       0
     );
     this.testResult.workingDays = workingDaysCount;
-    const totalMinutes = Math.floor(totalHours * 60);
+    const totalMinutes = Math.floor(workingDaysCount * dailyHours * 60);
     const dailyMinutes = totalMinutes / workingDaysCount;
     let usedMinutes = 0;
     let usedDays = 0;
