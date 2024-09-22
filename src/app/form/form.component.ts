@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, TrackByFunction} from '@angular/core';
+import { Component, inject, OnInit, TrackByFunction } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import {
@@ -14,9 +14,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import {time, TimePipe} from '../time.pipe';
+import { time, TimePipe } from '../time.pipe';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {czechHolidays} from '../holidays';
+import { czechHolidays } from '../holidays';
 
 interface AttendanceDay {
   /** Day of the month */
@@ -136,13 +136,17 @@ export class FormComponent implements OnInit {
       this.formArray = this.fb.array(
         dayAttendance.map((x) =>
           this.fb.group({
-            absent: [{value: x.absent, disabled: !x.working}],
+            absent: [{ value: x.absent, disabled: !x.working }],
             working: [x.working],
           })
         )
       );
       this.dayAttendance.data = dayAttendance;
-      this.formArray.controls.forEach((control, i) => control.controls.absent.valueChanges.subscribe((absent) => this.dayAttendance.data[i].absent = absent * 60));
+      this.formArray.controls.forEach((control, i) =>
+        control.controls.absent.valueChanges.subscribe(
+          (absent) => (this.dayAttendance.data[i].absent = absent * 60)
+        )
+      );
       // if (this.attendanceForm.controls.attendanceHours.pristine) {
       //   // set attendance hours to working days * 8 hours
       //   this.attendanceForm.controls.attendanceHours.setValue(dayAttendance.filter(day => day.working).length * 8);
@@ -159,7 +163,7 @@ export class FormComponent implements OnInit {
     const value = Number(input.value);
     this.recalculate(
       this.dayAttendance.data.map((rec) =>
-        rec.day === day ? { ...rec, absent: value} : rec
+        rec.day === day ? { ...rec, absent: value } : rec
       )
     );
   }
@@ -205,7 +209,7 @@ export class FormComponent implements OnInit {
       if (!day.working) return day;
       const morningStart = this.valueWithVariance(dayStart, dailyVariance);
       const morningEnd = this.valueWithVariance(lunchTime, dailyVariance);
-      if ((day.total - day.absent) <= (morningEnd - morningStart)) {
+      if (day.total - day.absent <= morningEnd - morningStart) {
         return {
           ...day,
           morningStart,
@@ -223,7 +227,8 @@ export class FormComponent implements OnInit {
           morningStart,
           morningEnd,
           afternoonStart,
-          afternoonEnd: afternoonStart + day.total - morningEnd + morningStart - day.absent,
+          afternoonEnd:
+            afternoonStart + day.total - morningEnd + morningStart - day.absent,
         };
       }
     });
@@ -247,10 +252,13 @@ export class FormComponent implements OnInit {
   }
 
   isWorking(year: number, month: number, day: number) {
-    const d = new Date(`${year}-${month-1}-${day}`);
+    const d = new Date(`${year}-${month - 1}-${day}`);
     const dateIso = d.toISOString().split('T')[0];
-    return d.getDay() !== 0 && d.getDay() !== 6 &&
-     !Object.keys(czechHolidays).includes(dateIso);
+    return (
+      d.getDay() !== 0 &&
+      d.getDay() !== 6 &&
+      !Object.keys(czechHolidays).includes(dateIso)
+    );
   }
 
   calculateDailyAttendance(
@@ -307,10 +315,15 @@ export class FormComponent implements OnInit {
   copyToClipboard() {
     // formatter - minutes to hour:minute
     const textValue: string = this.dayAttendance.data
-      .map(d => `${time(d.morningStart)}\t${time(d.morningEnd)}\t${time(d.afternoonStart)}\t${time(d.afternoonEnd)}`)
+      .map(
+        (d) =>
+          `${time(d.morningStart)}\t${time(d.morningEnd)}\t${time(
+            d.afternoonStart
+          )}\t${time(d.afternoonEnd)}`
+      )
       .join('\n');
     const textBlob = new Blob([textValue], { type: 'text/plain' });
-    const clipboardItem = new ClipboardItem({ [textBlob.type]: textBlob});
+    const clipboardItem = new ClipboardItem({ [textBlob.type]: textBlob });
     void navigator.clipboard.write([clipboardItem]);
   }
 }
