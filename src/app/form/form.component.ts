@@ -100,57 +100,71 @@ export class FormComponent implements OnInit {
     attendanceHours: [this.defaults.attendanceHours, Validators.required],
   });
 
+  /**
+   * Configuration of month days. Contains 31 "days", but shorter months
+   * don't use it fully.
+   */
   formArray = this.fb.array(
-    this.dayAttendance.data.map((x) =>
+    Array.from({ length: 31 }, (_, i) => i + 1).map((x) =>
       this.fb.group({
-        absent: [x.absent],
-        working: [x.working],
+        absent: [0],
+        working: [true],
       })
     )
   );
 
   ngOnInit() {
-    this.init();
-    this.attendanceForm.controls.month.valueChanges.subscribe(() =>
-      this.init()
+    this.init(
+      this.attendanceForm.controls.year.value,
+      this.attendanceForm.controls.month.value
     );
-    this.attendanceForm.controls.year.valueChanges.subscribe(() => this.init());
+    this.attendanceForm.controls.month.valueChanges.subscribe((month) =>
+      this.init(this.attendanceForm.controls.year.value, month)
+    );
+    this.attendanceForm.controls.year.valueChanges.subscribe((year) =>
+      this.init(year, this.attendanceForm.controls.month.value)
+    );
     this.dayAttendance.connect().subscribe(console.log);
   }
 
-  init() {
-    const v = this.attendanceForm.value;
-    if (v.year && v.month) {
-      this.dayCount = this.getDaysInMonth(v.year, v.month);
+  init(year: number, month: number) {
+    if (year && month) {
+      this.dayCount = this.getDaysInMonth(year, month);
       const dayAttendance = [];
       for (let d = 1; d <= this.dayCount; d++) {
         dayAttendance.push({
           day: d,
           morning: 0,
           afternoon: 0,
-          working: this.isWorking(v.year, v.month, d),
+          working: this.isWorking(year, month, d),
           absent: 0,
           total: 0,
         });
       }
-      this.formArray = this.fb.array(
-        dayAttendance.map((x) =>
-          this.fb.group({
-            absent: [{ value: x.absent, disabled: !x.working }],
-            working: [x.working],
-          })
-        )
+      // set the new value
+      this.formArray.patchValue(
+        dayAttendance.map((x) => ({
+          absent: x.absent,
+          working: x.working,
+        }))
       );
-      this.dayAttendance.data = dayAttendance;
-      this.formArray.controls.forEach((control, i) =>
-        control.controls.absent.valueChanges.subscribe(
-          (absent) => (this.dayAttendance.data[i].absent = absent * 60)
-        )
+      // enable / disable absent
+      dayAttendance.forEach((x, i) =>
+        x.working
+          ? this.formArray.at(i).controls.absent.enable()
+          : this.formArray.at(i).controls.absent.disable()
       );
+      // this.dayAttendance.data = dayAttendance;
+      // this.formArray.controls.forEach((control, i) =>
+      //   control.controls.absent.valueChanges.subscribe(
+      //     (absent) => (this.dayAttendance.data[i].absent = absent * 60)
+      //   )
+      // );
       // if (this.attendanceForm.controls.attendanceHours.pristine) {
       //   // set attendance hours to working days * 8 hours
       //   this.attendanceForm.controls.attendanceHours.setValue(dayAttendance.filter(day => day.working).length * 8);
       // }
+      this.recalculate(dayAttendance);
     }
   }
 
@@ -252,7 +266,7 @@ export class FormComponent implements OnInit {
   }
 
   isWorking(year: number, month: number, day: number) {
-    const d = new Date(`${year}-${month - 1}-${day}`);
+    const d = new Date(`${year}-${month}-${day}`);
     const dateIso = d.toISOString().split('T')[0];
     return (
       d.getDay() !== 0 &&
