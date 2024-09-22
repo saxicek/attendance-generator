@@ -347,11 +347,13 @@ export class FormComponent implements OnInit {
   copyToClipboard() {
     // formatter - minutes to hour:minute
     const textValue: string = this.dayAttendance.data
-      .map(
-        (d) =>
-          `${time(d.morningStart)}\t${time(d.morningEnd)}\t${time(
-            d.afternoonStart
-          )}\t${time(d.afternoonEnd)}`
+      .map((d) =>
+        [
+          time(d.morningStart),
+          time(d.afternoonEnd || d.morningEnd),
+          d.afternoonEnd ? time(d.morningEnd) : '',
+          time(d.afternoonStart),
+        ].join('\t')
       )
       .join('\n');
     const textBlob = new Blob([textValue], { type: 'text/plain' });
