@@ -1,0 +1,15 @@
+export const czechHolidays = {
+  '2024-01-01': 'Nový rok',
+  '2024-03-29': 'Velký pátek',
+  '2024-04-01': 'Velikonoční pondělí',
+  '2024-05-01': 'Svátek práce',
+  '2024-05-08': 'Den vítězství',
+  '2024-07-05': 'Den slovanských věrozvěstů Cyrila a Metoděje',
+  '2024-07-06': 'Den upálení mistra Jana Husa',
+  '2024-09-28': 'Den české státnosti',
+  '2024-10-28': 'Den vzniku samostatného československého státu',
+  '2024-11-17': 'Den boje za svobodu a demokracii',
+  '2024-12-24': 'Štědrý den',
+  '2024-12-25': '1. svátek vánoční',
+  '2024-12-26': '2. svátek vánoční',
+};

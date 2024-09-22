@@ -16,6 +16,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import {time, TimePipe} from '../time.pipe';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {czechHolidays} from '../holidays';
 
 interface AttendanceDay {
   /** Day of the month */
@@ -63,7 +64,7 @@ export class FormComponent implements OnInit {
     /** year to generate for */
     year: new Date().getFullYear(),
     /** month to generate for */
-    month: new Date().getMonth(),
+    month: new Date().getMonth() + 1,
     /** number of hours worked during the month */
     attendanceHours: 160,
   };
@@ -246,7 +247,9 @@ export class FormComponent implements OnInit {
 
   isWorking(year: number, month: number, day: number) {
     const d = new Date(`${year}-${month}-${day}`);
-    return d.getDay() !== 0 && d.getDay() !== 6;
+    const dateIso = d.toISOString().split('T')[0];
+    return d.getDay() !== 0 && d.getDay() !== 6 &&
+     !Object.keys(czechHolidays).includes(dateIso);
   }
 
   calculateDailyAttendance(

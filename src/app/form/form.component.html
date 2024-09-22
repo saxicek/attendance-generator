@@ -7,6 +7,7 @@
       <div class="row">
         <div class="col">
           <mat-form-field class="full-width">
+            <mat-label>Měsíc</mat-label>
             <input type="number" matInput placeholder="Měsíc" formControlName="month">
             @if (attendanceForm.controls['month'].hasError('required')) {
               <mat-error>Měsíc je <strong>povinný</strong></mat-error>
@@ -15,6 +16,7 @@
         </div>
         <div class="col">
           <mat-form-field class="full-width">
+            <mat-label>Rok</mat-label>
             <input matInput placeholder="Rok" formControlName="year">
             @if (attendanceForm.controls['year'].hasError('required')) {
               <mat-error>Rok je <strong>povinný</strong></mat-error>
@@ -120,7 +122,9 @@
     </mat-card-actions>
   </mat-card>
 </form>
+<!-- 
 <div>Test:</div>
 <div>{{ testResult | json }}</div>
 <div>Data:</div>
 <div>{{ dayAttendance.data | json }}</div>
+ -->
