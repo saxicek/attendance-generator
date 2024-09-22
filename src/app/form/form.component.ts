@@ -178,7 +178,12 @@ export class FormComponent implements OnInit {
   switchHoliday(day: number) {
     this.recalculate(
       this.dayAttendance.data.map((rec) =>
-        rec.day === day ? { ...rec, working: !rec.working } : rec
+        rec.day === day
+          ? {
+              ...rec,
+              working: !rec.working,
+            }
+          : rec
       )
     );
     this.dayAttendance.data[day - 1].working
@@ -213,7 +218,15 @@ export class FormComponent implements OnInit {
     dailyVariance: number
   ): AttendanceDay[] {
     return dayAttendance.map((day, i) => {
-      if (!day.working) return day;
+      if (!day.working)
+        return {
+          ...day,
+          absent: 0,
+          morningStart: 0,
+          morningEnd: 0,
+          afternoonStart: 0,
+          afternoonEnd: 0,
+        };
       const absent = this.formArray.at(i).controls.absent.value * 60;
       const morningStart = this.valueWithVariance(dayStart, dailyVariance);
       const morningEnd = this.valueWithVariance(lunchTime, dailyVariance);
@@ -271,6 +284,15 @@ export class FormComponent implements OnInit {
     );
   }
 
+  /**
+   * Daily attendance creates pseudo-randomized list of minutes
+   * worker worked each day - it updates `total` field.
+   *
+   * @param att list of attendances
+   * @param dailyHours number of working hours in a day
+   * @param variance
+   * @returns
+   */
   calculateDailyAttendance(
     att: AttendanceDay[],
     dailyHours: number,
@@ -297,7 +319,7 @@ export class FormComponent implements OnInit {
           return { ...day, total: totalMinutes - usedMinutes };
         }
       } else {
-        return day;
+        return { ...day, total: 0 };
       }
     });
   }
