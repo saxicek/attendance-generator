@@ -1,6 +1,6 @@
 # AttendanceGenerator
 
-Application generates fake monthly attendances suitable to reporting. See [src/app/form/form.component.ts](src/app/form/form.component.ts) for the main logic.
+Application generates fake monthly attendances suitable to reporting. See it live at https://saxicek.github.io/attendance-generator/. Start exploring [src/app/form/form.component.ts](src/app/form/form.component.ts) for the main logic.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.4.
 
